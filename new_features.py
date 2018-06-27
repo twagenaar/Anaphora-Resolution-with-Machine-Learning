@@ -1,6 +1,4 @@
 '''
-new_features.py
-
 Add the semantic features.
 '''
 
@@ -25,6 +23,9 @@ words = pickle.load(open("words.p", 'r'))
 words_matrix = words.as_matrix()
 
 def get_glove_score(context1, context2):
+  '''
+  get the glove score of the context of the markables
+  '''
   score = 0
   for word in context1:
     if word in model:
@@ -37,6 +38,9 @@ def get_glove_score(context1, context2):
   return 0
 
 def get_normal_score(context1, context2):
+  '''
+  get the percentage of the context of the markables that matches
+  '''
   score = 0
   for word in context1:
     if word in context2:
@@ -46,6 +50,9 @@ def get_normal_score(context1, context2):
   return 0
 
 def get_synonym_score(context1, context2):
+  '''
+  get the percentage of the context that matches synonyms of the context of the other markables
+  '''
   score = 0
   for word in context1:
     b = False
@@ -62,26 +69,30 @@ def get_synonym_score(context1, context2):
   return 0
 
 def clean_list(l):
+  '''
+  remove nonwords and empty strings from the context
+  '''
   table = string.maketrans("","")
   cleaned = [word.translate(table, string.punctuation) for word in l]
   cleaned = filter(None, cleaned)
   return cleaned
 
 def get_context(taginfo, window, fileinfo):
+  '''
+  get the context of a markable with a windowsize of "window"
+  '''
   context = []
   tag = taginfo.get_tuple()
   sen1 = tag[1]
   sen2 = tag[1]
   begin = tag[2][0]-window
   end = tag[2][-1]+window+1
-  # print begin, end, tag
   if begin < 0:
     line = fileinfo.get_line(sen1).split(' ')
     context += line[:begin+window]
     while begin < 0 and sen1 > 1:
       sen1 -= 1
       line = fileinfo.get_line(sen1).split(' ')
-      # print "line:", line, context
       len1 = len(line)
       if abs(begin) <= len1:
         context = line[begin:] + context
@@ -92,7 +103,6 @@ def get_context(taginfo, window, fileinfo):
   else:
     context += fileinfo.get_line(sen1).split(' ')[begin:tag[2][0]]
   line = fileinfo.get_line(sen2).split(' ')
-  # print "line2:", line, context
   len2 = len(line)
   while end >= len2:
     sen2 += 1
@@ -104,17 +114,14 @@ def get_context(taginfo, window, fileinfo):
       len2 = len(line)
     else: break
   context += line[tag[2][-1]+1:min(end, len2)]
-  # print "line3:", line, context
-  # print "testing:", line[1:9]
   return clean_list(context)
 
 def add_features(X, y, ids, fileinfo, model, window):
-  # print X.shape
+  '''
+  create the features with the corresponding classes and markable pairs
+  '''
   X_sem = np.zeros((X.shape[0], X.shape[1]+2))
-  # X_sem[0,:-1] = X[0,:]
-  # print X_sem[:10,:]
   for i in range(X.shape[0]):
-    # print X[i,:], y[i], ids[i,:], ids[i,0], ids[i,1]
     taginfo1 = ids[i,0]
     taginfo2 = ids[i,1]
     context1 = get_context(taginfo1, window, fileinfo)
@@ -131,13 +138,8 @@ def add_features(X, y, ids, fileinfo, model, window):
     X_sem[i,-2] = normal_score
     X_sem[i,-1] = syn_score
 
-    # if i % 10 == 0:
-    #     print i
-
-    # print failing
   return X_sem
 
-# start = time.time()
 counter = 0
 new_files = defaultdict(None)
 for filename in filenames[:]:
@@ -153,5 +155,6 @@ for filename in filenames[:]:
 pickle.dump(new_files, open("sem_files.p", 'w'))
 print "Pickle Created!"
 
+# print the time it took to calculate
 end = time.time()
 print "Time elapsed:", str(int(floor((end-start)/60))) + ":" + str(round(((end-start)/60 - floor((end-start)/60))*60))

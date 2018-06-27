@@ -16,6 +16,9 @@ start = time.time()
 filenames = glob.glob("ontonotes-release-5.0/data/files/data/english/annotations/bn/*/*/*.coref")
 
 def open_file(filename):
+  '''
+  open the file and create a fileinfo object containing the raw and porcessed text
+  '''
   f = open(filename, 'r')
   new_text = []
   old_text = ""
@@ -27,6 +30,9 @@ def open_file(filename):
   return fileinfo
 
 def get_chains(filename, fileinfo):
+  '''
+  extract the coreference chains from the annotated text and create a taginfo object for each annotation
+  '''
   chains = defaultdict(list)
   tree = ET.parse(filename)
   root = tree.getroot()
@@ -77,7 +83,6 @@ def get_chains(filename, fileinfo):
                 i.append(occurance)
 
             if check:
-              # sen_lens.append(len(sentence))
               indices.append(i)
               sen_indices.append(senti)
 
@@ -91,10 +96,8 @@ def get_chains(filename, fileinfo):
 
 
 def get_sentence_lengths(fileinfo):
-  # print fileinfo.get_processed()
   text = fileinfo.get_processed()
   lens = [len(s.split(' ')) if s else 0 for s in text.split('\n')]
-  # print lens
   return lens
 
 files = defaultdict(None)
@@ -102,7 +105,6 @@ counter = 0
 print "Number of files:", len(filenames)
 for filename in filenames[:]:
   fileinfo = open_file(filename)
-
   chains = get_chains(filename, fileinfo)
   fileinfo.set_chains(chains)
   sentence_lengths = get_sentence_lengths(fileinfo)
@@ -114,6 +116,7 @@ for filename in filenames[:]:
 
 pickle.dump(files, open("files.p", "w"))
 print "Pickle created"
+
+# print the time it took to calculate
 end = time.time()
 print "Time elapsed:", end-start, "sec"
-# print files['ontonotes-release-5.0/data/files/data/english/annotations/bn/cnn/01/cnn_0178.coref'].get_chains()

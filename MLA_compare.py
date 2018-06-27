@@ -2,17 +2,11 @@
 Compare Machine Learning Algorithms
 '''
 
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.neighbors.nearest_centroid import NearestCentroid
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.linear_model import SGDClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import KFold
 from sklearn import neighbors
 from sklearn import tree
-from sklearn import svm
 from functions import *
 from classes import *
 from math import floor
@@ -20,6 +14,7 @@ import pickle
 import numpy
 import time
 
+# flag that indicates if the semantic features will be used. 0: no, 1: yes
 semantics = 1
 
 start = time.time()
@@ -35,14 +30,15 @@ mla03 = GaussianNB()
 mla04 = tree.DecisionTreeClassifier()
 mla05 = RandomForestClassifier()
 
-# mla01, mla02,
+# mla01 and mla02 have been removed since the calculation took too long
 mlas = [mla03, mla04, mla05]
-# mlas = [mla02]
 
+# Calculate scores for each of the machine learning algorithms
 for mla in mlas:
 	start1 = time.time()
 	print "MLA:", mla
 
+	# use 5-fold cross validation
 	for train_index, test_index in kf.split(filenames):
 		X, y, ids = files[filenames[train_index[0]]].get_features()
 		if semantics:
@@ -66,9 +62,9 @@ for mla in mlas:
 			y_test = numpy.concatenate((y_test, y1))
 			ids_test = numpy.concatenate((ids_test, ids1))
 
-		print "starting prediction", X.shape
+		# Start prediction and calculate performance
 		y_pred = mla.fit(X, y).predict(X_test)
-		print "Accuracy:", numpy.mean(y_pred == y_test), sum(y_pred), sum(y_test)
+		print "Accuracy:", numpy.mean(y_pred == y_test)
 
 		positives = ids_test[y_pred]
 		test_filenames = np.array(filenames)[test_index]
@@ -86,6 +82,6 @@ for mla in mlas:
 		print "--------------------------------------------------------------"
 		print
 
-
+# print time it took to calculate
 end = time.time()
 print "Time elapsed:", str(int(floor((end-start)/60))) + ":" + str(round(((end-start)/60 - floor((end-start)/60))*60))

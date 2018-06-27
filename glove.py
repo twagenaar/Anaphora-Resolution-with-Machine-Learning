@@ -1,5 +1,5 @@
 '''
-Use GloVe to get semantic information
+Initialize the Glove vector space
 '''
 
 file = "glove.6B.50d.txt"

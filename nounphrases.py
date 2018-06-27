@@ -17,10 +17,12 @@ import re
 
 # nltk.download()
 
+# TextBlob
 def get_pronouns(text):
   blob = TextBlob(text)
   return [word for (word,tag) in blob.tags if (tag == "PRP" or tag == "PRP$" or tag == "NN")]
 
+# SpaCy
 # def get_nps(text):
 #   nlp = spacy.load('en')
 #   nps = []
@@ -29,7 +31,7 @@ def get_pronouns(text):
 #     nps.append(np.text)
 #   return nps
 
-# Best functioning NP Extractor
+# PhraseMachine
 # def get_nps(text):
 #   nps = phrasemachine.get_phrases(text)
 #   return list(nps['counts']) + get_pronouns(text)
@@ -63,7 +65,6 @@ for filename in filenames:
   for l in np_tags1:
     np_tags += l
   np_tags = [x.get_text().lower() for x in np_tags if x]
-  # correct += [x.lower() in nps for x in np_tags]
 
   # Processing, get line and position in line
   np_list = []

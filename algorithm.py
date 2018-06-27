@@ -1,8 +1,7 @@
 '''
-Creating the features and applying machine learning
+Creating the features
 '''
 
-from sklearn.naive_bayes import GaussianNB
 from collections import defaultdict, Counter
 from classes import *
 from math import floor
@@ -16,6 +15,9 @@ import re
 start = time.time()
 
 def cleantaglist(taglist):
+	'''
+	clean the taglist of double tags
+	'''
 	done = []
 	tags = []
 	for tag in taglist:
@@ -26,6 +28,9 @@ def cleantaglist(taglist):
 	return tags
 
 def getfeatures(fileinfo):
+	'''
+	collect the features for the given file
+	'''
 	nps = fileinfo.get_nps()
 	nps = cleantaglist(nps)
 	chains = fileinfo.get_chains()
@@ -45,21 +50,15 @@ def getfeatures(fileinfo):
 				ids.append([np1, np2])
 	return numpy.matrix(features), numpy.array(y), numpy.matrix(ids)
 
-
+# collect the filenames
 files = pickle.load(open('new_files.p', 'r'))
 filenames = glob.glob("ontonotes-release-5.0/data/files/data/english/annotations/bn/*/*/*.coref")
-
 random.shuffle(filenames)
-
 pickle.dump(filenames, open("filenames.p", 'w'))
 
-gnb = GaussianNB()
-
 counter = 0
-
 print "Number of files:", len(filenames)
-
-for filename in filenames[:]:
+for filename in filenames:
 	X1, y1, ids1 = getfeatures(files[filename])
 	fileinfo = files[filename]
 	fileinfo.set_features(X1, y1, ids1)
@@ -68,22 +67,9 @@ for filename in filenames[:]:
 	if counter % 100 == 0:
 		print "Current file:", counter
 
-# for filename in filenames[int(0.8*len(filenames)):]:
-# 	X1, y1, ids1 = getfeatures(files[filename])
-# 	fileinfo = files[filename]
-# 	fileinfo.set_features(X1, y1, ids1)
-# 	files[filename] = fileinfo
-# 	counter += 1
-# 	if counter % 100 == 0:
-# 		print "Current file:", counter
-
 pickle.dump(files, open("new_new_files.p", 'w'))
 print "Pickle Created!"
-# y_pred = gnb.fit(X, y).predict(X_test)
-# print numpy.mean(y_pred == y_test)
 
-# print ids_test.shape, X_test.shape
-# print ids.shape, X.shape
-
+# print time it took to calculate
 end = time.time()
 print "Time elapsed:", str(int(floor((end-start)/60))) + ":" + str(((end-start)/60 - floor((end-start)/60))*60)

@@ -3,6 +3,14 @@ The python classes used
 '''
 
 class FileInfo:
+  '''
+  class containing information about a file
+  - features
+  - semantic features
+  - processed and unprocessed text
+  - coreference chains
+  - markables extracted from the text
+  '''
   def __init__(self, old_text, new_text):
     self.original = old_text
     self.processed = new_text
@@ -57,6 +65,12 @@ class FileInfo:
     return "FILEINFO(%s)"%(self.processed[0])
 
 class TagInfo:
+  '''
+  Contains information about a tag and gives you the possibility to calculate the get_features
+  - text of the markable
+  - sentence and word indices of the markable
+  - calculate the features between this markable and another
+  '''
   def __init__(self, text, sentence_index, word_indices):
     self.text = text
     self.sentence = sentence_index
